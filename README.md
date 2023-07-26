@@ -1,13 +1,15 @@
 # canvas_visualization
 
 ## Installation
+
 To run the application you will need node installed.
 
 ### Frontend
+
 Navigate to the frontend folder.
 
 Run the following command to install dependencies:
-```bash
+
 npm install
 
 Once the installation is complete, you can start the development server:
