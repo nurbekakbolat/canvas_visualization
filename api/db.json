@@ -27,6 +27,17 @@
         "labelA",
         "zxczxc"
       ]
+    },
+    {
+      "name": "Ent4",
+      "coordinate": "5,3",
+      "labels": [
+        "pointasd",
+        "asd",
+        "qwdds]"
+      ],
+      "color": "#391806",
+      "id": 4
     }
   ]
 }

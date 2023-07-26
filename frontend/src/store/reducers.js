@@ -4,7 +4,7 @@ import axios from "axios";
 
 const entitiesSlice = createSlice({
   name: "users",
-  initialState: { value: userData },
+  initialState: { value: userData, selected: [] },
   reducers: {
     addEntity(state, action) {
       const updatedEntity = action.payload;
@@ -60,8 +60,14 @@ const entitiesSlice = createSlice({
         state.value.splice(entityIndex, 1); // Remove the entity from the state
       }
     },
+    addSelectedEntities(state, action) {
+      console.log(action.payload);
+      const selectedEntities = action.payload;
+      state.selected = selectedEntities;
+    },
   },
 });
 
-export const { addEntity, removeEntity } = entitiesSlice.actions;
+export const { addEntity, removeEntity, addSelectedEntities } =
+  entitiesSlice.actions;
 export default entitiesSlice.reducer;

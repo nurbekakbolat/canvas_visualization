@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addEntity, removeEntity } from "../store/reducers";
 import {
@@ -29,9 +29,27 @@ const StyledListItem = styled(ListItem)(({ color }) => ({
   marginBottom: "8px",
 }));
 
+// New styling for the Selected Entities section
+const SelectedEntitiesContainer = styled("div")({
+  backgroundColor: "rgba(255, 255, 255, 0.8)",
+  padding: "8px",
+  borderRadius: "4px",
+  border: "1px solid #ccc",
+  marginTop: "16px",
+});
+
+const TableListItem = styled(ListItem)({
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gridGap: "8px",
+  alignItems: "center",
+  padding: "8px",
+  borderBottom: "1px solid #ccc",
+});
 const EntityList = () => {
   const entities = useSelector((state) => state.users.value);
   const dispatch = useDispatch();
+  const selectedEntities = useSelector((state) => state.users.selected);
 
   // State for handling editing
   const [editableId, setEditableId] = useState(null);
@@ -41,6 +59,20 @@ const EntityList = () => {
     coordinate: "",
     labels: "",
   });
+
+  useEffect(() => {
+    document.addEventListener("keydown", detectKeyDown);
+  }, []);
+
+  const detectKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setEditableId(null);
+    } else if (e.key === "Enter") {
+      e.preventDefault(); // Prevent default behavior of the text field (form submission)
+      handleSaveClick(e);
+    }
+    console.log(e.key);
+  };
 
   const handleRemoveEntity = (id) => {
     dispatch(removeEntity({ id }));
@@ -54,7 +86,14 @@ const EntityList = () => {
   const handleInsertClick = () => {
     setEditableId("new");
   };
-
+  const handleTextFieldKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent default behavior of the text field (form submission)
+      handleSaveClick(e); // Trigger the save logic
+    } else if (e.key === "Escape") {
+      setEditableId(null);
+    }
+  };
   const handleSaveClick = () => {
     if (editableId === "new") {
       // Split the labels input into an array
@@ -64,13 +103,28 @@ const EntityList = () => {
       const newEntityWithLabels = {
         ...newEntity,
         labels: labelsArray,
-        color: getRandomColor(), // Generate a random color for the new entity
       };
 
       dispatch(addEntity(newEntityWithLabels));
     } else {
       // Split the labels input into an array
-      const labelsArray = editedEntity.labels.split(/[,\s]+/);
+      let labelsArray;
+
+      const ent = entities.find((entity) => entity.id === editableId);
+      console.log(editedEntity);
+      if (typeof ent === "undefined") {
+        setEditableId(null);
+        return;
+      }
+      if (editedEntity.labels === ent.labels) {
+        setEditableId(null);
+        return;
+      }
+      if (editedEntity.labels.length > 1) {
+        labelsArray = editedEntity.labels.split(/[,\s]+/);
+      } else {
+        labelsArray = editedEntity.labels;
+      }
 
       // Create an updated entity with the edited labels array
       const updatedEntity = {
@@ -89,15 +143,6 @@ const EntityList = () => {
     });
   };
 
-  const getRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
   return (
     <Container>
       <Typography variant="h5" gutterBottom>
@@ -105,7 +150,7 @@ const EntityList = () => {
       </Typography>
       <List>
         {entities.map((entity) => (
-          <StyledListItem key={entity.id} color={entity.color}>
+          <StyledListItem key={entity.id}>
             {editableId === entity.id ? (
               <Grid container spacing={2} alignItems="center">
                 <Grid item xs={4}>
@@ -118,6 +163,7 @@ const EntityList = () => {
                         name: e.target.value,
                       })
                     }
+                    onKeyDown={handleTextFieldKeyDown}
                   />
                 </Grid>
                 <Grid item xs={2}>
@@ -130,6 +176,7 @@ const EntityList = () => {
                         coordinate: e.target.value,
                       })
                     }
+                    onKeyDown={handleTextFieldKeyDown}
                   />
                 </Grid>
                 <Grid item xs={4}>
@@ -142,6 +189,7 @@ const EntityList = () => {
                         labels: e.target.value,
                       })
                     }
+                    onKeyDown={handleTextFieldKeyDown}
                   />
                 </Grid>
                 <Grid item xs={2}>
@@ -181,6 +229,7 @@ const EntityList = () => {
                   onChange={(e) =>
                     setNewEntity({ ...newEntity, name: e.target.value })
                   }
+                  onKeyDown={handleTextFieldKeyDown}
                 />
               </Grid>
               <Grid item xs={4}>
@@ -190,6 +239,7 @@ const EntityList = () => {
                   onChange={(e) =>
                     setNewEntity({ ...newEntity, coordinate: e.target.value })
                   }
+                  onKeyDown={handleTextFieldKeyDown}
                 />
               </Grid>
               <Grid item xs={2}>
@@ -199,6 +249,7 @@ const EntityList = () => {
                   onChange={(e) =>
                     setNewEntity({ ...newEntity, labels: e.target.value })
                   }
+                  onKeyDown={handleTextFieldKeyDown}
                 />
               </Grid>
               <Grid item xs={2}>
@@ -210,6 +261,25 @@ const EntityList = () => {
       </List>
       <Button onClick={handleInsertClick}>Insert Item</Button>
       <CanvasVisualization entities={entities} />
+      <div
+        style={{
+          position: "relative",
+        }}
+      >
+        <div style={{ marginBottom: "20px" }}>
+          <SelectedEntitiesContainer>
+            <Typography variant="subtitle1">Selected Entities:</Typography>
+            <List>
+              {selectedEntities.map((entity, index) => (
+                <TableListItem key={entity.id}>
+                  <ListItemText primary={entity.name} />
+                  <ListItemText secondary={entity.labels.join(", ")} />
+                </TableListItem>
+              ))}
+            </List>
+          </SelectedEntitiesContainer>
+        </div>
+      </div>
     </Container>
   );
 };

@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
-
+import { useDispatch } from "react-redux";
+import { addSelectedEntities } from "../store/reducers";
+import { List, ListItem, ListItemText, Typography } from "@mui/material";
 const CanvasVisualization = ({ entities }) => {
   const canvasRef = useRef(null);
+  const dispatch = useDispatch();
   const [canvasContext, setCanvasContext] = useState(null);
   const [selectionStart, setSelectionStart] = useState(null);
   const [selectionEnd, setSelectionEnd] = useState(null);
   const [isMouseDown, setIsMouseDown] = useState(false);
-
+  const [selectedEntities, setSelectedEntities] = useState([]);
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -143,7 +146,7 @@ const CanvasVisualization = ({ entities }) => {
 
   const performQuery = () => {
     if (!selectionStart || !selectionEnd) return;
-    console.log("ZXCZXCZXC");
+
     // Scale the selection coordinates back to the original scale
     const scale = 20; // The same scale used in drawEntity function
     const originalStartX =
@@ -172,13 +175,14 @@ const CanvasVisualization = ({ entities }) => {
       );
     });
 
-    // Get the labels of the selected entities
     const selectedLabels = selectedEntities
       .map((entity) => entity.labels)
       .flat();
 
     console.log("Selected entities:", selectedEntities);
     console.log("Selected labels:", selectedLabels);
+    setSelectedEntities(selectedEntities);
+    dispatch(addSelectedEntities(selectedEntities));
   };
 
   const handleMouseMove = (e) => {
@@ -193,14 +197,16 @@ const CanvasVisualization = ({ entities }) => {
   };
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={800} // Set the canvas width
-      height={600} // Set the canvas height
-      style={{ border: "1px solid black" }}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-    />
+    <div style={{ position: "relative" }}>
+      <canvas
+        ref={canvasRef}
+        width={800} // Set the canvas width
+        height={600} // Set the canvas height
+        style={{ border: "1px solid black" }}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+      />
+    </div>
   );
 };
 
