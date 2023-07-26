@@ -1,0 +1,32 @@
+{
+  "userData": [
+    {
+      "id": 1,
+      "name": "Entity1",
+      "coordinate": "-5, 10",
+      "labels": [
+        "labelA",
+        "labelB",
+        "labelE"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Entity2",
+      "coordinate": "3, 6",
+      "labels": [
+        "labelC",
+        "labelD"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Entity3",
+      "coordinate": "-10, -10",
+      "labels": [
+        "labelA",
+        "zxczxc"
+      ]
+    }
+  ]
+}
